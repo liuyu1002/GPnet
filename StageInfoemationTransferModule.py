@@ -7,7 +7,6 @@ from torch.autograd import Variable
 class SITM(nn.Module):
     def __init__(self,in_channel,hidden_channel):
         super(SITM,self).__init__()
-        # padding = kernel_size // 2
         self.reset = nn.Conv2d(in_channels=in_channel*2,out_channels=in_channel,kernel_size=1)
         self.in_channel = in_channel
         self.conv = nn.Conv2d(in_channels=hidden_channel,out_channels=in_channel,kernel_size=3,stride=2,padding=1)
@@ -21,10 +20,8 @@ class SITM(nn.Module):
         #  generata empty perstate, if Note is provided
         if pre_state is None:
             state_size = [batch, self.in_channel,spatial,spatial]
-            # print(state_size)
             if torch.cuda.is_available():
                 pre_state = Variable(torch.zeros(state_size)).cuda()
-                # print(pre_state.shape)
             else:
                 pre_state = Variable(torch.zeros(state_size))
         else:
@@ -42,7 +39,6 @@ class SITM(nn.Module):
         stacked_inputs = torch.cat([input, pre_state], dim=1)
         out = self.reset(stacked_inputs)
         reset  = torch.sigmoid(out)
-        # weight = reset *
 
         update = torch.sigmoid(input + reset * pre_state)
         new_state = input+ self.delta*(update * input)
@@ -52,8 +48,6 @@ class SITM(nn.Module):
 class MAM(nn.Module):# channel
     def __init__(self,):
         super(MAM,self).__init__()
-        # self.conv1 = nn.Conv2d(in_channels=in_channel,out_channels=in_channel//2,kernel_size=1)
-        # self.conv2 = nn.Conv2d(in_channels=in_channel,out_channels=in_channel//2,kernel_size=1)
         self.delta = nn.Parameter(torch.Tensor([0.1]))
 
     def forward(self,input,state):
